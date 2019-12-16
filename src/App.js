@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import withFirebaseAuth from 'react-with-firebase-auth'
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
+import firebaseConfig from './firebaseConfig';
+// import logo from './logo.svg';
 import './App.css';
+import Bookmark from './Bookmark'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+
+class App extends Component {
+  render() {
+    const {
+      user,
+      signOut,
+      signInWithGoogle,
+    } = this.props;
+
+    return (
+      <div className="App">
+        <header className="App-header">
+          {/* <img src={logo} className="App-logo" alt="logo" /> */}
+          {
+            user
+              ? <p className="sans-serif">Hello, {user.displayName}</p>
+
+              : <p className="sans-serif">Please SignIn</p>
+          }
+
+          {
+            user
+              ? <div><button onClick={signOut} className="br4 light-red " id="signout">Sign out</button><Bookmark/></div>
+              : <button onClick={signInWithGoogle} className="br4 light-red " id="sign">Sign in with Google</button>
+          }
+        </header>
+      </div>
+    );
+  }
 }
 
-export default App;
+const firebaseAppAuth = firebaseApp.auth();
+
+const providers = {
+  googleProvider: new firebase.auth.GoogleAuthProvider(),
+};
+
+export default withFirebaseAuth({
+  providers,
+  firebaseAppAuth,
+})(App);
